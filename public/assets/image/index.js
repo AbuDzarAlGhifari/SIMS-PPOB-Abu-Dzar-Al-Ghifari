@@ -1,0 +1,9 @@
+export { default as backroun_saldo } from './Background_Saldo.png';
+export { default as baner_1 } from './Banner_1.png';
+export { default as baner_2 } from './Banner_2.png';
+export { default as baner_3 } from './Banner_3.png';
+export { default as baner_4 } from './Banner_4.png';
+export { default as baner_5 } from './Banner_5.png';
+export { default as ilustrasi_login } from './Illustrasi_Login.png';
+export { default as logo } from './Logo.png';
+export { default as profile_photo } from './Profile_Photo.png';
