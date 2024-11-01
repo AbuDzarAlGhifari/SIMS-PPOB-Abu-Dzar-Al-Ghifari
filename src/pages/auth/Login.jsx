@@ -1,24 +1,30 @@
+import Input from '@/components/Inputs/Input';
+import { loginUser } from '@/store/auth/authSlice';
 import { logo } from '@assets/image';
 import { Button } from '@material-tailwind/react';
-import React from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'react-hot-toast';
 import { MdAlternateEmail, MdLockOutline } from 'react-icons/md';
-import { useForm, Controller } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { authSchema } from '@/libs/validations/auth';
-import Input from '@/components/Inputs/Input';
-import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Login = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loading } = useSelector((state) => state.auth);
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm({
-    resolver: yupResolver(authSchema),
-  });
+  } = useForm();
 
-  const onSubmit = (data) => {
-    console.log('Form Data:', data);
+  const onSubmit = async (data) => {
+    try {
+      const result = await dispatch(loginUser(data)).unwrap();
+      toast.success(result.message || 'Login Succses');
+    } catch (err) {
+      toast.error(err.message || 'Login Error');
+    }
   };
 
   return (
@@ -33,35 +39,30 @@ const Login = () => {
         </h2>
 
         <form className="w-full space-y-4" onSubmit={handleSubmit(onSubmit)}>
-          <Controller
+          <Input
             name="email"
             control={control}
-            render={({ field }) => (
-              <Input
-                {...field}
-                type="email"
-                placeholder="Masukkan email anda"
-                icon={MdAlternateEmail}
-                errorMessage={errors.email?.message}
-              />
-            )}
+            type="email"
+            placeholder="masukkan email anda"
+            icon={MdAlternateEmail}
+            errorMessage={errors.email?.message}
           />
-          <Controller
+          <Input
             name="password"
             control={control}
-            render={({ field }) => (
-              <Input
-                {...field}
-                type="password"
-                placeholder="Buat password"
-                icon={MdLockOutline}
-                errorMessage={errors.password?.message}
-              />
-            )}
+            type="password"
+            placeholder="buat password"
+            icon={MdLockOutline}
+            errorMessage={errors.password?.message}
           />
-
-          <Button color="red" type="submit" className="capitalize" fullWidth>
-            Masuk
+          <Button
+            color="red"
+            type="submit"
+            className="capitalize"
+            fullWidth
+            disabled={loading}
+          >
+            {loading ? 'Loading...' : 'Masuk'}
           </Button>
 
           <p className="text-center">

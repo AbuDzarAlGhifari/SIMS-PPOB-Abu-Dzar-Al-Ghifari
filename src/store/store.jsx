@@ -1,11 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
-import registerReducer from './registerSlice';
-import authReducer from './authSlice';
+import authReducer from './auth/authSlice';
+import topUpReducer from './transaction/topUpSlice';
 
 const store = configureStore({
   reducer: {
-    register: registerReducer,
     auth: authReducer,
+    topUp: topUpReducer,
   },
 });
 

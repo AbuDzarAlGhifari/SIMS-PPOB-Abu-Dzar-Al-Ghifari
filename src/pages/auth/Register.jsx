@@ -1,21 +1,21 @@
-import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useForm, Controller } from 'react-hook-form';
+import Input from '@/components/Inputs/Input';
+import { authSchema } from '@/libs/validations';
+import { registerUser } from '@/store/auth/authSlice';
+import { updateForm } from '@/store/auth/registerSlice';
+import { logo } from '@assets/image';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Button } from '@material-tailwind/react';
-import { MdAlternateEmail, MdLockOutline } from 'react-icons/md';
+import { useForm } from 'react-hook-form';
+import { toast } from 'react-hot-toast';
 import { FaRegUser } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
-import { registerUser } from '@/services/authService';
-import { authSchema } from '@/libs/validations/auth';
-import Input from '@/components/Inputs/Input';
-import { updateForm } from '@/store/registerSlice';
-import { logo } from '@assets/image';
-import toast, { Toaster } from 'react-hot-toast';
+import { MdAlternateEmail, MdLockOutline } from 'react-icons/md';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Register = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
-  const registerData = useSelector((state) => state.register);
+  const { loading, message, error } = useSelector((state) => state.auth);
 
   const {
     control,
@@ -23,30 +23,29 @@ const Register = () => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(authSchema),
-    defaultValues: registerData,
   });
 
   const handleChange = (name, value) => dispatch(updateForm({ name, value }));
 
   const onSubmit = async (data) => {
-    try {
-      const requestData = {
-        email: data.email,
-        first_name: data.nama_depan,
-        last_name: data.nama_belakang,
-        password: data.password,
-      };
-      const result = await registerUser(requestData);
+    const requestData = {
+      email: data.email,
+      first_name: data.nama_depan,
+      last_name: data.nama_belakang,
+      password: data.password,
+    };
 
-      toast.success(result.message);
-    } catch (error) {
-      toast.error(error.message);
+    try {
+      await dispatch(registerUser(requestData)).unwrap();
+      toast.success(message || 'Registration successful');
+      navigate('/');
+    } catch (err) {
+      toast.error(err?.message || error || 'Registration failed');
     }
   };
 
   return (
     <main className="min-h-screen md:flex font-inter">
-      <Toaster position="top-center" reverseOrder={false} />
       <section className="flex flex-col items-center justify-center w-full min-h-screen p-4 bg-white md:px-12 lg:px-24 md:w-1/2">
         <header className="flex items-center justify-center gap-2 mb-8">
           <img src={logo} alt="Logo SIMS PPOB" />
@@ -57,98 +56,60 @@ const Register = () => {
         </h2>
 
         <form className="w-full space-y-4" onSubmit={handleSubmit(onSubmit)}>
-          <Controller
+          <Input
             name="email"
             control={control}
-            render={({ field }) => (
-              <Input
-                {...field}
-                type="email"
-                placeholder="masukkan email anda"
-                icon={MdAlternateEmail}
-                errorMessage={errors.email?.message}
-                onChange={(e) => {
-                  field.onChange(e);
-                  handleChange('email', e.target.value);
-                }}
-              />
-            )}
+            type="email"
+            placeholder="masukkan email anda"
+            icon={MdAlternateEmail}
+            errorMessage={errors.email?.message}
+            onChange={handleChange}
           />
-
-          <Controller
+          <Input
             name="nama_depan"
             control={control}
-            render={({ field }) => (
-              <Input
-                {...field}
-                type="text"
-                placeholder="nama depan"
-                icon={FaRegUser}
-                errorMessage={errors.nama_depan?.message}
-                onChange={(e) => {
-                  field.onChange(e);
-                  handleChange('nama_depan', e.target.value);
-                }}
-              />
-            )}
+            type="text"
+            placeholder="nama depan"
+            icon={FaRegUser}
+            errorMessage={errors.nama_depan?.message}
+            onChange={handleChange}
           />
-
-          <Controller
+          <Input
             name="nama_belakang"
             control={control}
-            render={({ field }) => (
-              <Input
-                {...field}
-                type="text"
-                placeholder="nama belakang"
-                icon={FaRegUser}
-                errorMessage={errors.nama_belakang?.message}
-                onChange={(e) => {
-                  field.onChange(e);
-                  handleChange('nama_belakang', e.target.value);
-                }}
-              />
-            )}
+            type="text"
+            placeholder="nama belakang"
+            icon={FaRegUser}
+            errorMessage={errors.nama_belakang?.message}
+            onChange={handleChange}
           />
-
-          <Controller
+          <Input
             name="password"
             control={control}
-            render={({ field }) => (
-              <Input
-                {...field}
-                type="password"
-                placeholder="buat password"
-                icon={MdLockOutline}
-                errorMessage={errors.password?.message}
-                onChange={(e) => {
-                  field.onChange(e);
-                  handleChange('password', e.target.value);
-                }}
-              />
-            )}
+            type="password"
+            placeholder="buat password"
+            icon={MdLockOutline}
+            errorMessage={errors.password?.message}
+            onChange={handleChange}
           />
-
-          <Controller
+          <Input
             name="conf_password"
             control={control}
-            render={({ field }) => (
-              <Input
-                {...field}
-                type="password"
-                placeholder="konfirmasi password"
-                icon={MdLockOutline}
-                errorMessage={errors.conf_password?.message}
-                onChange={(e) => {
-                  field.onChange(e);
-                  handleChange('conf_password', e.target.value);
-                }}
-              />
-            )}
+            type="password"
+            placeholder="konfirmasi password"
+            icon={MdLockOutline}
+            errorMessage={errors.conf_password?.message}
+            onChange={handleChange}
           />
 
-          <Button color="red" type="submit" className="capitalize" fullWidth>
-            Registrasi
+          <Button
+            color="red"
+            type="submit"
+            className="capitalize"
+            fullWidth
+            disabled={loading}
+          >
+            {loading ? 'Loading...' : 'Registrasi'}
           </Button>
 
           <p className="text-center">
