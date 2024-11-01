@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux';
 import TopUp from './pages/top-up/TopUp';
 import TransactionHistori from './pages/transaction/TransactionHistori';
 import Transaction from './pages/transaction/Transaction';
-import Profile from './pages/profile/profile';
+import Profile from './pages/profile/Profile';
 import { Toaster } from 'react-hot-toast';
 
 const App = () => {
